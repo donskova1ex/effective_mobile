@@ -31,6 +31,17 @@ paths:
 
     post:
       summary: Create a new song
+      parameters:
+        - name: group
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: song
+          in: query
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:

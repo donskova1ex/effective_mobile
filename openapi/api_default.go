@@ -159,6 +159,29 @@ func (c *DefaultAPIController) InfoPut(w http.ResponseWriter, r *http.Request) {
 
 // InfoPost - Create a new song
 func (c *DefaultAPIController) InfoPost(w http.ResponseWriter, r *http.Request) {
+	query, err := parseQuery(r.URL.RawQuery)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	var groupParam string
+	if query.Has("group") {
+		param := query.Get("group")
+
+		groupParam = param
+	} else {
+		c.errorHandler(w, r, &RequiredError{Field: "group"}, nil)
+		return
+	}
+	var songParam string
+	if query.Has("song") {
+		param := query.Get("song")
+
+		songParam = param
+	} else {
+		c.errorHandler(w, r, &RequiredError{Field: "song"}, nil)
+		return
+	}
 	var songDetailParam SongDetail
 	d := json.NewDecoder(r.Body)
 	d.DisallowUnknownFields()
@@ -174,7 +197,7 @@ func (c *DefaultAPIController) InfoPost(w http.ResponseWriter, r *http.Request) 
 		c.errorHandler(w, r, err, nil)
 		return
 	}
-	result, err := c.service.InfoPost(r.Context(), songDetailParam)
+	result, err := c.service.InfoPost(r.Context(), groupParam, songParam, songDetailParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

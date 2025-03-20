@@ -61,6 +61,21 @@ paths:
           description: Internal server error
       summary: Get song details
     post:
+      parameters:
+      - explode: true
+        in: query
+        name: group
+        required: true
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: song
+        required: true
+        schema:
+          type: string
+        style: form
       requestBody:
         content:
           application/json:

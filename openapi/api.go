@@ -35,6 +35,6 @@ type DefaultAPIRouter interface {
 type DefaultAPIServicer interface { 
 	InfoGet(context.Context, string, string) (ImplResponse, error)
 	InfoPut(context.Context, string, string, SongDetail) (ImplResponse, error)
-	InfoPost(context.Context, SongDetail) (ImplResponse, error)
+	InfoPost(context.Context, string, string, SongDetail) (ImplResponse, error)
 	InfoDelete(context.Context, string, string) (ImplResponse, error)
 }

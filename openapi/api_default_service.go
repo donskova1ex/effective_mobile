@@ -15,7 +15,9 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
+	"time"
 
+	"github.com/donskova1ex/effective_mobile/internal"
 	"github.com/donskova1ex/effective_mobile/internal/domain"
 )
 type SongsProcessor interface {
@@ -42,74 +44,94 @@ func NewDefaultAPIService(songsProcessor SongsProcessor, logger *slog.Logger) *D
 
 // InfoGet - Get song details
 func (s *DefaultAPIService) InfoGet(ctx context.Context, group string, song string) (ImplResponse, error) {
-	// TODO - update InfoGet with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	// TODO: Uncomment the next line to return response Response(200, SongDetail{}) or use other options such as http.Ok ...
-	// return Response(200, SongDetail{}), nil
-
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
-	// return Response(500, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("InfoGet method not implemented")
+	resultSong, err := s.songsProcessor.GetSong(ctx, group, song)
+	if errors.Is(err, internal.ErrBadRequest) {
+		return Response(http.StatusBadRequest, nil), err
+	}
+	if errors.Is(err, internal.ErrNotFound) {
+		return Response(http.StatusNotFound, nil), err
+	}
+	if errors.Is(err, internal.ErrEmptyParams) {
+		return Response(http.StatusInternalServerError, nil), err
+	}
+	openApiSong := SongDetail{
+		ReleaseDate: resultSong.ReleaseDate.Format("2006-01-02"),
+		Text:        resultSong.Text,
+		Link:        resultSong.Link,
+	}
+	return Response(http.StatusOK, openApiSong), nil
 }
 
 // InfoPut - Update an existing song
 func (s *DefaultAPIService) InfoPut(ctx context.Context, group string, song string, songDetail SongDetail) (ImplResponse, error) {
-	// TODO - update InfoPut with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+	releaseDate, err := time.Parse("2006-01-02", songDetail.ReleaseDate)
+	if err != nil {
+		return Response(http.StatusBadRequest, nil), err
+	}
 
-	// TODO: Uncomment the next line to return response Response(200, SongDetail{}) or use other options such as http.Ok ...
-	// return Response(200, SongDetail{}), nil
+	resultSong, err := s.songsProcessor.UpdateSong(ctx, &domain.Song{
+		GroupName:   group,
+		SongName:    song,
+		ReleaseDate: releaseDate,
+		Text:        songDetail.Text,
+		Link:        songDetail.Link,
+	})
+	if err != nil {
+		if errors.Is(err, internal.ErrNotFound) {
+			return Response(http.StatusNotFound, nil), err
+		}
+		return Response(http.StatusInternalServerError, nil), err
+	}
 
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
-	// return Response(500, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("InfoPut method not implemented")
+	openApiSong := SongDetail{
+		ReleaseDate: resultSong.ReleaseDate.Format("2006-01-02"),
+		Text:        resultSong.Text,
+		Link:        resultSong.Link,
+	}
+	return Response(http.StatusOK, openApiSong), nil
 }
 
 // InfoPost - Create a new song
-func (s *DefaultAPIService) InfoPost(ctx context.Context, songDetail SongDetail) (ImplResponse, error) {
-	// TODO - update InfoPost with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+func (s *DefaultAPIService) InfoPost(ctx context.Context, group string, song string, songDetail SongDetail) (ImplResponse, error) {
 
-	// TODO: Uncomment the next line to return response Response(201, SongDetail{}) or use other options such as http.Ok ...
-	// return Response(201, SongDetail{}), nil
+	releaseDate, err := time.Parse("2006-01-02", songDetail.ReleaseDate)
+	if err != nil {
+		return Response(http.StatusBadRequest, nil), err
+	}
 
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
+	resultSong, err := s.songsProcessor.CreateSong(ctx, &domain.Song{
+		ReleaseDate: releaseDate,
+		Text:        songDetail.Text,
+		Link:        songDetail.Link,
+		GroupName:   group,
+		SongName:    song,
+	})
+	if err != nil {
+		return Response(http.StatusBadRequest, nil), err
+	}
 
-	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
-	// return Response(500, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("InfoPost method not implemented")
+	openApiSong := SongDetail{
+		ReleaseDate: resultSong.ReleaseDate.Format("2006-01-02"),
+		Text:        resultSong.Text,
+		Link:        resultSong.Link,
+	}
+	return Response(http.StatusCreated, openApiSong), nil
 }
 
 // InfoDelete - Delete an existing song
 func (s *DefaultAPIService) InfoDelete(ctx context.Context, group string, song string) (ImplResponse, error) {
-	// TODO - update InfoDelete with the required logic for this service method.
-	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
 
-	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
-	// return Response(204, nil),nil
+	err := s.songsProcessor.DeleteSong(ctx, group, song)
+	if err != nil {
+		return Response(http.StatusInternalServerError, nil), err
+	}
+	if errors.Is(err, internal.ErrNotFound) {
+		return Response(http.StatusNotFound, nil), err
+	}
+	if errors.Is(err, internal.ErrEmptyParams) {
+		return Response(http.StatusBadRequest, nil), err
+	}
+	return Response(http.StatusNoContent, nil), nil
 
-	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
-	// return Response(400, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
-	// return Response(404, nil),nil
-
-	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
-	// return Response(500, nil),nil
-
-	return Response(http.StatusNotImplemented, nil), errors.New("InfoDelete method not implemented")
 }

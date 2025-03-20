@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log/slog"
 
+	"github.com/donskova1ex/effective_mobile/internal"
 	"github.com/donskova1ex/effective_mobile/internal/domain"
 )
 
@@ -74,7 +75,7 @@ func (r *Repository) GetSong(ctx context.Context, groupName, songName string) (*
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
-			return nil, fmt.Errorf("song not found")
+			return nil, fmt.Errorf("song not found: %w", internal.ErrNotFound)
 		}
 		return nil, fmt.Errorf("failed to get song: %w", err)
 	}
@@ -155,7 +156,7 @@ func (r *Repository) DeleteSong(ctx context.Context, groupName, songName string)
 	}
 
 	if rowsAffected == 0 {
-		return fmt.Errorf("song not found")
+		return fmt.Errorf("song not found: %w", internal.ErrNotFound)
 	}
 
 	if err := tx.Commit(); err != nil {
