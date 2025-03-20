@@ -12,19 +12,32 @@ package openapi
 
 import (
 	"context"
-	"net/http"
 	"errors"
-)
+	"log/slog"
+	"net/http"
 
+	"github.com/donskova1ex/effective_mobile/internal/domain"
+)
+type SongsProcessor interface {
+	GetSong(ctx context.Context, groupName, songName string) (*domain.Song, error)
+	CreateSong(ctx context.Context, song *domain.Song) (*domain.Song, error)
+	UpdateSong(ctx context.Context, song *domain.Song) (*domain.Song, error)
+	DeleteSong(ctx context.Context, groupName, songName string) error
+}
 // DefaultAPIService is a service that implements the logic for the DefaultAPIServicer
 // This service should implement the business logic for every endpoint for the DefaultAPI API.
 // Include any external packages or services that will be required by this service.
 type DefaultAPIService struct {
+	songsProcessor SongsProcessor
+	logger         *slog.Logger
 }
 
 // NewDefaultAPIService creates a default api service
-func NewDefaultAPIService() *DefaultAPIService {
-	return &DefaultAPIService{}
+func NewDefaultAPIService(songsProcessor SongsProcessor, logger *slog.Logger) *DefaultAPIService {
+	return &DefaultAPIService{
+		songsProcessor: songsProcessor,
+		logger:         logger,
+		}
 }
 
 // InfoGet - Get song details
