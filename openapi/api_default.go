@@ -51,22 +51,22 @@ func (c *DefaultAPIController) Routes() Routes {
 	return Routes{
 		"InfoGet": Route{
 			strings.ToUpper("Get"),
-			"/info",
+			"/api/v1/info",
 			c.InfoGet,
 		},
 		"InfoPut": Route{
 			strings.ToUpper("Put"),
-			"/info",
+			"/api/v1/info",
 			c.InfoPut,
 		},
 		"InfoPost": Route{
 			strings.ToUpper("Post"),
-			"/info",
+			"/api/v1/info",
 			c.InfoPost,
 		},
 		"InfoDelete": Route{
 			strings.ToUpper("Delete"),
-			"/info",
+			"/api/v1/info",
 			c.InfoDelete,
 		},
 	}

@@ -4,6 +4,8 @@ services:
     container_name: songs.postgres
     image: postgres:15
     hostname: postgres
+    env_file:
+      - config/.env.dev
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}
@@ -52,10 +54,12 @@ services:
   api-up:
     container_name: songs.api
     hostname: api
+    env_file:
+      - config/.env.dev
     environment:
       - API_PORT=${API_PORT}
       - POSTGRES_DSN=${POSTGRES_DSN}
-    image: donskova1ex/api:latest
+    image: donskova1ex/songs:latest
     depends_on:
       - migrations-up
     ports:

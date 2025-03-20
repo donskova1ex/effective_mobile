@@ -10,6 +10,7 @@ import (
 
 func NewPostgresDB(ctx context.Context, pgDSN string) (*sqlx.DB, error) {
 	db, err := sqlx.ConnectContext(ctx, "postgres", pgDSN)
+
 	if err != nil {
 		return nil, fmt.Errorf("failed to open connection to postgres: %w", err)
 	}

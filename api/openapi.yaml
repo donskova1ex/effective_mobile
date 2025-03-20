@@ -3,7 +3,7 @@ info:
   title: Music info
   version: 0.0.1
 servers:
-- url: /
+- url: https://songs.swagger.io/api/v1
 paths:
   /info:
     delete:

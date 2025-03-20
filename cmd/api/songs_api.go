@@ -18,11 +18,11 @@ import (
 	"time"
 
 	"github.com/donskova1ex/effective_mobile/internal"
-	"github.com/donskova1ex/effective_mobile/internal/config"
 	"github.com/donskova1ex/effective_mobile/internal/middleware"
 	"github.com/donskova1ex/effective_mobile/internal/processors"
 	"github.com/donskova1ex/effective_mobile/internal/repositories"
 	openapi "github.com/donskova1ex/effective_mobile/openapi"
+	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -36,14 +36,25 @@ func main() {
 
 	logger.Info("Starting server")
 
-	cfg, err := config.LoadConfig()
+	err := godotenv.Load("config/.env.dev")
+	
 	if err != nil {
-		logger.Error("Failed to load config", slog.String("err", err.Error()))
+		logger.Error("Error loading .env file", slog.String("err", err.Error()))
+	}
+	pgDSN := os.Getenv("POSTGRES_DSN")
+	if pgDSN == "" {
+		logger.Error("empty POSTGRES_DSN")
 		os.Exit(1)
 	}
-	logger.Info("Config loaded", slog.String("port", cfg.Port))
 
-	db, err := repositories.NewPostgresDB(ctx, cfg.PgDSN)
+	apiPort := os.Getenv("API_PORT")
+	if apiPort == "" {
+		logger.Error("empty API_PORT")
+		os.Exit(1)
+	}
+	logger.Info("Config loaded", slog.String("port", apiPort))
+
+	db, err := repositories.NewPostgresDB(ctx, pgDSN)
 	if err != nil {
 		logger.Error("Failed to connect to postgres", slog.String("err", err.Error()))
 		os.Exit(1)
@@ -61,7 +72,7 @@ func main() {
 	router.Use(middleware.RequestIDMiddleware, requestLogger)
 
 	httpServer := &http.Server{
-		Addr:    ":" + cfg.Port,
+		Addr:    ":" + apiPort,
 		Handler: router,
 		ErrorLog: slog.NewLogLogger(logJSONHandler, slog.LevelError),
 	}
@@ -100,7 +111,7 @@ func main() {
 		os.Exit(1)
 	}()
 
-	logger.Info("Server started", slog.String("port", cfg.Port))
+	logger.Info("Server started", slog.String("port", apiPort))
 
 	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		logger.Error("Failed to start server", slog.String("err", err.Error()))
