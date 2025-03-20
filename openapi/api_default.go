@@ -64,6 +64,11 @@ func (c *DefaultAPIController) Routes() Routes {
 			"/info",
 			c.InfoPost,
 		},
+		"InfoDelete": Route{
+			strings.ToUpper("Delete"),
+			"/info",
+			c.InfoDelete,
+		},
 	}
 }
 
@@ -170,6 +175,41 @@ func (c *DefaultAPIController) InfoPost(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	result, err := c.service.InfoPost(r.Context(), songDetailParam)
+	// If an error occurred, encode the error with the status code
+	if err != nil {
+		c.errorHandler(w, r, err, &result)
+		return
+	}
+	// If no error, encode the body and the result code
+	_ = EncodeJSONResponse(result.Body, &result.Code, w)
+}
+
+// InfoDelete - Delete an existing song
+func (c *DefaultAPIController) InfoDelete(w http.ResponseWriter, r *http.Request) {
+	query, err := parseQuery(r.URL.RawQuery)
+	if err != nil {
+		c.errorHandler(w, r, &ParsingError{Err: err}, nil)
+		return
+	}
+	var groupParam string
+	if query.Has("group") {
+		param := query.Get("group")
+
+		groupParam = param
+	} else {
+		c.errorHandler(w, r, &RequiredError{Field: "group"}, nil)
+		return
+	}
+	var songParam string
+	if query.Has("song") {
+		param := query.Get("song")
+
+		songParam = param
+	} else {
+		c.errorHandler(w, r, &RequiredError{Field: "song"}, nil)
+		return
+	}
+	result, err := c.service.InfoDelete(r.Context(), groupParam, songParam)
 	// If an error occurred, encode the error with the status code
 	if err != nil {
 		c.errorHandler(w, r, err, &result)

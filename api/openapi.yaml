@@ -6,6 +6,32 @@ servers:
 - url: /
 paths:
   /info:
+    delete:
+      parameters:
+      - explode: true
+        in: query
+        name: group
+        required: true
+        schema:
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: song
+        required: true
+        schema:
+          type: string
+        style: form
+      responses:
+        "204":
+          description: Song deleted successfully
+        "400":
+          description: Bad request
+        "404":
+          description: Song not found
+        "500":
+          description: Internal server error
+      summary: Delete an existing song
     get:
       parameters:
       - explode: true

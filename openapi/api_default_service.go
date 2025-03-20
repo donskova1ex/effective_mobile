@@ -80,3 +80,23 @@ func (s *DefaultAPIService) InfoPost(ctx context.Context, songDetail SongDetail)
 
 	return Response(http.StatusNotImplemented, nil), errors.New("InfoPost method not implemented")
 }
+
+// InfoDelete - Delete an existing song
+func (s *DefaultAPIService) InfoDelete(ctx context.Context, group string, song string) (ImplResponse, error) {
+	// TODO - update InfoDelete with the required logic for this service method.
+	// Add api_default_service.go to the .openapi-generator-ignore to avoid overwriting this service implementation when updating open api generation.
+
+	// TODO: Uncomment the next line to return response Response(204, {}) or use other options such as http.Ok ...
+	// return Response(204, nil),nil
+
+	// TODO: Uncomment the next line to return response Response(400, {}) or use other options such as http.Ok ...
+	// return Response(400, nil),nil
+
+	// TODO: Uncomment the next line to return response Response(404, {}) or use other options such as http.Ok ...
+	// return Response(404, nil),nil
+
+	// TODO: Uncomment the next line to return response Response(500, {}) or use other options such as http.Ok ...
+	// return Response(500, nil),nil
+
+	return Response(http.StatusNotImplemented, nil), errors.New("InfoDelete method not implemented")
+}

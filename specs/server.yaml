@@ -82,6 +82,29 @@ paths:
         '500':
           description: Internal server error
 
+    delete:
+      summary: Delete an existing song
+      parameters:
+        - name: group
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: song
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Song deleted successfully
+        '400':
+          description: Bad request
+        '404':
+          description: Song not found
+        '500':
+          description: Internal server error
+
 components:
   schemas:
     SongDetail:
