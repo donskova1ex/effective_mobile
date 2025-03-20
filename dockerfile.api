@@ -1,0 +1,21 @@
+FROM golang:alpine3.19 AS builder
+
+RUN apk update && apk add --no-cache git
+
+WORKDIR /app
+
+COPY *.mod *.sum ./
+RUN go mod download
+
+COPY . .
+RUN rm -f songs_api
+
+ENV CGO_ENABLED=0
+RUN go build -a -o songs_api ./cmd/api/songs_api.go
+
+FROM alpine:latest
+
+RUN apk update && apk add --no-cache bash
+WORKDIR /app
+COPY --from=builder /app/songs_api /app/songs_api
+CMD ["./songs_api"]
