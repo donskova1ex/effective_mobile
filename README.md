@@ -65,3 +65,7 @@ make dev-up
 - `release_date` - дата релиза
 - `text` - текст песни
 - `link` - ссылка на песню
+
+### Тестовые данные
+- The Beatles "Hey Jude" 1968-08-26
+- Queen "Bohemian Rhapsody" 1975-10-31
