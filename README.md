@@ -67,5 +67,6 @@ make dev-up
 - `link` - ссылка на песню
 
 ### Тестовые данные
+В БД присутствуют тестовые данные:
 - The Beatles "Hey Jude" 1968-08-26
 - Queen "Bohemian Rhapsody" 1975-10-31
